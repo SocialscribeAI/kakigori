@@ -10,7 +10,7 @@ export const ASSETS = {
     hero: '/assets/backgrounds/hero-section-cookies&cream.png',
     benefits: '/assets/backgrounds/section-2-strawberry.png',
     events: '/assets/backgrounds/Section3.jpg',
-    testimonials: '/assets/backgrounds/testimonal-section.jpg',
+    testimonials: '/assets/backgrounds/testimonal-section.png',
     contact: '/assets/backgrounds/Contact-section.png',
   },
   // Placeholder for future social media images

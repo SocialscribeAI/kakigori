@@ -12,6 +12,23 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
+// Hook to detect mobile
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile, { passive: true });
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+  
+  return isMobile;
+};
+
 export const ScrollAnimationController = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const backgroundRef = useRef<HTMLDivElement>(null);
@@ -28,6 +45,8 @@ export const ScrollAnimationController = () => {
   const [showPhones, setShowPhones] = useState(false);
   const [phonesConverged, setPhonesConverged] = useState(false);
   const [showFinalPhone, setShowFinalPhone] = useState(false);
+  
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -35,6 +54,13 @@ export const ScrollAnimationController = () => {
     const ctx = gsap.context(() => {
       // Kill any existing ScrollTriggers
       ScrollTrigger.getAll().forEach(st => st.kill());
+      
+      // Mobile-specific animation values
+      const mobileFlavorX = isMobile ? '-15vw' : '-30vw';
+      const mobileFlavorScale = isMobile ? 0.6 : 0.8;
+      const eventsFlavorX = isMobile ? '10vw' : '24vw';
+      const eventsFlavorY = isMobile ? '-5vh' : '-7vh';
+      const eventsFlavorScale = isMobile ? 0.5 : 0.7;
 
       // Section 1 -> Section 2: Flavor 1 to Flavor 2, move left
       ScrollTrigger.create({
@@ -45,9 +71,9 @@ export const ScrollAnimationController = () => {
           setCurrentFlavor(1);
           setCurrentBg('benefits');
           gsap.to(flavorRef.current, {
-            x: '-30vw',
-            scale: 0.8,
-            duration: 0.8,
+            x: mobileFlavorX,
+            scale: mobileFlavorScale,
+            duration: isMobile ? 0.6 : 0.8,
             ease: 'power2.out',
           });
         },
@@ -57,7 +83,7 @@ export const ScrollAnimationController = () => {
           gsap.to(flavorRef.current, {
             x: 0,
             scale: 1,
-            duration: 0.8,
+            duration: isMobile ? 0.6 : 0.8,
             ease: 'power2.out',
           });
         },
@@ -72,10 +98,10 @@ export const ScrollAnimationController = () => {
           setCurrentFlavor(2);
           setCurrentBg('events');
           gsap.to(flavorRef.current, {
-            x: '24vw',
-            y: '-7vh',
-            scale: 0.7,
-            duration: 0.8,
+            x: eventsFlavorX,
+            y: eventsFlavorY,
+            scale: eventsFlavorScale,
+            duration: isMobile ? 0.6 : 0.8,
             ease: 'power2.out',
           });
         },
@@ -83,16 +109,16 @@ export const ScrollAnimationController = () => {
           setCurrentFlavor(1);
           setCurrentBg('benefits');
           gsap.to(flavorRef.current, {
-            x: '-30vw',
+            x: mobileFlavorX,
             y: 0,
-            scale: 0.8,
-            duration: 0.8,
+            scale: mobileFlavorScale,
+            duration: isMobile ? 0.6 : 0.8,
             ease: 'power2.out',
           });
         },
       });
 
-      // Section 3: Show 5 phones rising from bottom
+      // Section 3: Show phones rising from bottom (3 on mobile, 5 on desktop)
       ScrollTrigger.create({
         trigger: '#section-events',
         start: 'top -20%',
@@ -105,15 +131,20 @@ export const ScrollAnimationController = () => {
             duration: 0.5,
             ease: 'power2.inOut',
           });
-          // Animate phones up from bottom with stagger
+          
+          // On mobile, only animate center phone and 2 side phones
+          const phonesToAnimate = isMobile 
+            ? [phone2Ref.current, phone3Ref.current, phone4Ref.current]
+            : [phone1Ref.current, phone2Ref.current, phone3Ref.current, phone4Ref.current, phone5Ref.current];
+          
           gsap.fromTo(
-            [phone1Ref.current, phone2Ref.current, phone3Ref.current, phone4Ref.current, phone5Ref.current],
+            phonesToAnimate,
             { y: '100vh', opacity: 0 },
             { 
               y: 0, 
               opacity: 1, 
-              duration: 0.8, 
-              stagger: 0.1,
+              duration: isMobile ? 0.6 : 0.8, 
+              stagger: isMobile ? 0.08 : 0.1,
               ease: 'power3.out',
             }
           );
@@ -122,17 +153,18 @@ export const ScrollAnimationController = () => {
           setShowPhones(false);
           gsap.to(flavorRef.current, {
             opacity: 1,
-            scale: 0.7,
-            x: '24vw',
-            y: '-7vh',
+            scale: eventsFlavorScale,
+            x: eventsFlavorX,
+            y: eventsFlavorY,
             duration: 0.5,
             ease: 'power2.out',
           });
-          // Hide phones
-          gsap.to(
-            [phone1Ref.current, phone2Ref.current, phone3Ref.current, phone4Ref.current, phone5Ref.current],
-            { y: '100vh', opacity: 0, duration: 0.4 }
-          );
+          
+          const phonesToAnimate = isMobile 
+            ? [phone2Ref.current, phone3Ref.current, phone4Ref.current]
+            : [phone1Ref.current, phone2Ref.current, phone3Ref.current, phone4Ref.current, phone5Ref.current];
+          
+          gsap.to(phonesToAnimate, { y: '100vh', opacity: 0, duration: 0.4 });
         },
       });
 
@@ -142,22 +174,36 @@ export const ScrollAnimationController = () => {
         start: 'top -80%',
         onEnter: () => {
           setPhonesConverged(true);
-          // Side phones slide behind center phone
-          gsap.to(phone1Ref.current, { x: '200%', opacity: 0, duration: 0.6, ease: 'power2.inOut' });
-          gsap.to(phone2Ref.current, { x: '100%', opacity: 0, duration: 0.6, ease: 'power2.inOut', delay: 0.05 });
-          gsap.to(phone4Ref.current, { x: '-100%', opacity: 0, duration: 0.6, ease: 'power2.inOut', delay: 0.05 });
-          gsap.to(phone5Ref.current, { x: '-200%', opacity: 0, duration: 0.6, ease: 'power2.inOut' });
+          
+          if (isMobile) {
+            // On mobile, just fade out side phones
+            gsap.to(phone2Ref.current, { x: '80%', opacity: 0, duration: 0.5, ease: 'power2.inOut' });
+            gsap.to(phone4Ref.current, { x: '-80%', opacity: 0, duration: 0.5, ease: 'power2.inOut' });
+          } else {
+            // Desktop animation
+            gsap.to(phone1Ref.current, { x: '200%', opacity: 0, duration: 0.6, ease: 'power2.inOut' });
+            gsap.to(phone2Ref.current, { x: '100%', opacity: 0, duration: 0.6, ease: 'power2.inOut', delay: 0.05 });
+            gsap.to(phone4Ref.current, { x: '-100%', opacity: 0, duration: 0.6, ease: 'power2.inOut', delay: 0.05 });
+            gsap.to(phone5Ref.current, { x: '-200%', opacity: 0, duration: 0.6, ease: 'power2.inOut' });
+          }
+          
           // Center phone stays and grows slightly
-          gsap.to(phone3Ref.current, { scale: 1.1, duration: 0.6, ease: 'power2.out' });
+          gsap.to(phone3Ref.current, { scale: isMobile ? 1.05 : 1.1, duration: 0.6, ease: 'power2.out' });
         },
         onLeaveBack: () => {
           setPhonesConverged(false);
-          // Reset all phones to original position
-          gsap.to(phone1Ref.current, { x: 0, opacity: 1, duration: 0.5 });
-          gsap.to(phone2Ref.current, { x: 0, opacity: 1, duration: 0.5 });
+          
+          if (isMobile) {
+            gsap.to(phone2Ref.current, { x: 0, opacity: 1, duration: 0.5 });
+            gsap.to(phone4Ref.current, { x: 0, opacity: 1, duration: 0.5 });
+          } else {
+            gsap.to(phone1Ref.current, { x: 0, opacity: 1, duration: 0.5 });
+            gsap.to(phone2Ref.current, { x: 0, opacity: 1, duration: 0.5 });
+            gsap.to(phone4Ref.current, { x: 0, opacity: 1, duration: 0.5 });
+            gsap.to(phone5Ref.current, { x: 0, opacity: 1, duration: 0.5 });
+          }
+          
           gsap.to(phone3Ref.current, { scale: 1, duration: 0.5 });
-          gsap.to(phone4Ref.current, { x: 0, opacity: 1, duration: 0.5 });
-          gsap.to(phone5Ref.current, { x: 0, opacity: 1, duration: 0.5 });
         },
       });
 
@@ -169,9 +215,9 @@ export const ScrollAnimationController = () => {
           setCurrentBg('testimonials');
           // Move center phone down and tilt as if resting in snow
           gsap.to(phone3Ref.current, { 
-            y: '35vh', 
-            rotation: -8,
-            scale: 1.15, 
+            y: isMobile ? '25vh' : '35vh', 
+            rotation: isMobile ? -5 : -8,
+            scale: isMobile ? 1.08 : 1.15, 
             duration: 1, 
             ease: 'power2.out' 
           });
@@ -182,7 +228,7 @@ export const ScrollAnimationController = () => {
           gsap.to(phone3Ref.current, { 
             y: 0, 
             rotation: 0,
-            scale: 1.1, 
+            scale: isMobile ? 1.05 : 1.1, 
             opacity: 1,
             duration: 0.6, 
             ease: 'power2.out' 
@@ -192,7 +238,7 @@ export const ScrollAnimationController = () => {
 
       // Scrubbed zoom: Phone gets bigger and fades out as you scroll through testimonials
       gsap.to(phone3Ref.current, {
-        scale: 12,
+        scale: isMobile ? 8 : 12,
         rotation: 0,
         opacity: 0,
         ease: 'none',
@@ -200,7 +246,7 @@ export const ScrollAnimationController = () => {
           trigger: '#section-testimonials',
           start: 'top -30%',
           end: 'bottom 50%',
-          scrub: 1,
+          scrub: isMobile ? 0.5 : 1,
           onLeave: () => {
             setCurrentBg('contact');
           },
@@ -221,9 +267,9 @@ export const ScrollAnimationController = () => {
           setCurrentBg('testimonials');
           // Reset phone to tilted snow position
           gsap.to(phone3Ref.current, { 
-            scale: 1.15,
-            y: '35vh',
-            rotation: -8,
+            scale: isMobile ? 1.08 : 1.15,
+            y: isMobile ? '25vh' : '35vh',
+            rotation: isMobile ? -5 : -8,
             opacity: 1,
             duration: 0.8, 
             ease: 'power2.out' 
@@ -233,7 +279,7 @@ export const ScrollAnimationController = () => {
     });
 
     return () => ctx.revert();
-  }, []);
+  }, [isMobile]);
 
   return (
     <div ref={containerRef} className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
@@ -255,7 +301,7 @@ export const ScrollAnimationController = () => {
       {/* Floating Flavor Bowl */}
       <div
         ref={flavorRef}
-        className={`absolute top-[70%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] md:w-[650px] md:h-[650px] lg:w-[750px] lg:h-[750px] transition-opacity duration-500 ${
+        className={`absolute top-[60%] sm:top-[70%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] h-[280px] sm:w-[400px] sm:h-[400px] md:w-[650px] md:h-[650px] lg:w-[750px] lg:h-[750px] transition-opacity duration-500 ${
           showPhones ? 'opacity-0' : 'opacity-100'
         }`}
       >
@@ -283,16 +329,16 @@ export const ScrollAnimationController = () => {
         ))}
       </div>
 
-      {/* 5 Phone Row */}
+      {/* 5 Phone Row (3 on mobile) */}
       <div
         ref={phonesContainerRef}
-        className={`absolute bottom-24 left-0 right-0 flex items-end justify-center transition-opacity duration-500 ${
+        className={`absolute bottom-16 sm:bottom-24 left-0 right-0 flex items-end justify-center transition-opacity duration-500 ${
           showPhones ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
       >
-        <div className="flex items-end justify-center gap-2 md:gap-4 px-4">
-          {/* Phone 1 (far left) */}
-          <div ref={phone1Ref} className="flex-shrink-0">
+        <div className="flex items-end justify-center gap-1 sm:gap-2 md:gap-4 px-2 sm:px-4">
+          {/* Phone 1 (far left) - Hidden on mobile */}
+          <div ref={phone1Ref} className="flex-shrink-0 hidden md:block">
             <PhoneFrame className="w-28 md:w-36 lg:w-40">
               <Image
                 src="/assets/Phone-frames/red-wedding.jpg"
@@ -305,7 +351,7 @@ export const ScrollAnimationController = () => {
 
           {/* Phone 2 */}
           <div ref={phone2Ref} className="flex-shrink-0">
-            <PhoneFrame className="w-28 md:w-36 lg:w-40">
+            <PhoneFrame className="w-20 sm:w-28 md:w-36 lg:w-40">
               <Image
                 src="/assets/Phone-frames/brown-communitevents.jpg"
                 alt="Community events"
@@ -317,7 +363,7 @@ export const ScrollAnimationController = () => {
 
           {/* Phone 3 (CENTER - stays visible) */}
           <div ref={phone3Ref} className="flex-shrink-0 z-10">
-            <PhoneFrame className="w-32 md:w-40 lg:w-48 phone-glow">
+            <PhoneFrame className="w-24 sm:w-32 md:w-40 lg:w-48 phone-glow">
               <Image
                 src="/assets/Phone-frames/Contact info.jpg"
                 alt="Contact info"
@@ -329,7 +375,7 @@ export const ScrollAnimationController = () => {
 
           {/* Phone 4 */}
           <div ref={phone4Ref} className="flex-shrink-0">
-            <PhoneFrame className="w-28 md:w-36 lg:w-40">
+            <PhoneFrame className="w-20 sm:w-28 md:w-36 lg:w-40">
               <Image
                 src="/assets/Phone-frames/yellow-corporateevents.jpg"
                 alt="Corporate events"
@@ -339,8 +385,8 @@ export const ScrollAnimationController = () => {
             </PhoneFrame>
           </div>
 
-          {/* Phone 5 (far right) */}
-          <div ref={phone5Ref} className="flex-shrink-0">
+          {/* Phone 5 (far right) - Hidden on mobile */}
+          <div ref={phone5Ref} className="flex-shrink-0 hidden md:block">
             <PhoneFrame className="w-28 md:w-36 lg:w-40">
               <Image
                 src="/assets/Phone-frames/green-batmitzvah.jpg"

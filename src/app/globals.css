@@ -6,14 +6,22 @@
   --color-cream: #FFF8F0;
   --color-charcoal: #1a1a1a;
   --color-gold: #C9A959;
+  /* Mobile-optimized spacing */
+  --safe-area-inset-top: env(safe-area-inset-top, 0px);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-inset-left: env(safe-area-inset-left, 0px);
+  --safe-area-inset-right: env(safe-area-inset-right, 0px);
 }
 
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html {
   scroll-behavior: smooth;
+  /* Prevent horizontal scroll on mobile */
+  overflow-x: hidden;
 }
 
 body {
@@ -22,6 +30,28 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Prevent pull-to-refresh on mobile */
+  overscroll-behavior-y: contain;
+  /* Safe area padding for notched devices */
+  padding-top: var(--safe-area-inset-top);
+  padding-left: var(--safe-area-inset-left);
+  padding-right: var(--safe-area-inset-right);
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .animate-float {
+    animation: none !important;
+  }
 }
 
 /* Hide scrollbar but keep functionality */
@@ -74,12 +104,28 @@ img {
   animation: float 6s ease-in-out infinite;
 }
 
+/* Reduced floating on mobile for performance */
+@media (max-width: 768px) {
+  .animate-float {
+    animation: float-mobile 8s ease-in-out infinite;
+  }
+}
+
 @keyframes float {
   0%, 100% {
     transform: translateY(0px);
   }
   50% {
     transform: translateY(-20px);
+  }
+}
+
+@keyframes float-mobile {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
   }
 }
 
@@ -122,4 +168,63 @@ img {
 /* Ensure GSAP pinned sections work correctly */
 .pin-spacer {
   flex-shrink: 0;
+}
+
+/* Mobile-specific touch optimizations */
+@media (max-width: 768px) {
+  /* Larger touch targets */
+  button, 
+  a, 
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Improve text readability on mobile */
+  p, li {
+    line-height: 1.7;
+  }
+  
+  /* Phone glow reduced on mobile for performance */
+  .phone-glow {
+    box-shadow: 
+      0 0 30px rgba(201, 169, 89, 0.1),
+      0 15px 30px -8px rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* Mobile landscape handling */
+@media (max-width: 768px) and (orientation: landscape) {
+  .mobile-landscape-adjust {
+    min-height: auto;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+}
+
+/* Smooth scrolling momentum on iOS */
+.scroll-smooth-mobile {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Hide on mobile utility */
+.hide-mobile {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+/* Show only on mobile utility */
+.show-mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .show-mobile {
+    display: block;
+  }
 }

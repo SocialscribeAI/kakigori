@@ -161,7 +161,7 @@ export const ScrollAnimationController = () => {
         },
       });
 
-      // Testimonials section: Phone tilts into snow with ice background
+      // Testimonials section: Phone tilts into snow, then zooms as you scroll
       ScrollTrigger.create({
         trigger: '#section-testimonials',
         start: 'top 70%',
@@ -183,29 +183,39 @@ export const ScrollAnimationController = () => {
             y: 0, 
             rotation: 0,
             scale: 1.1, 
+            opacity: 1,
             duration: 0.6, 
             ease: 'power2.out' 
           });
         },
       });
 
-      // Contact section: Zoom into phone then transition to contact background
+      // Scrubbed zoom: Phone gets bigger and fades out as you scroll through testimonials
+      gsap.to(phone3Ref.current, {
+        scale: 12,
+        rotation: 0,
+        opacity: 0,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '#section-testimonials',
+          start: 'top -30%',
+          end: 'bottom 50%',
+          scrub: 1,
+          onLeave: () => {
+            setCurrentBg('contact');
+          },
+          onEnterBack: () => {
+            setCurrentBg('testimonials');
+          },
+        },
+      });
+
+      // Contact section: Just switch background
       ScrollTrigger.create({
         trigger: '#section-contact',
         start: 'top 70%',
         onEnter: () => {
-          // Zoom into the phone dramatically
-          gsap.to(phone3Ref.current, { 
-            scale: 8,
-            y: '50vh',
-            rotation: 0,
-            opacity: 0,
-            duration: 1.2, 
-            ease: 'power2.inOut',
-            onComplete: () => {
-              setCurrentBg('contact');
-            }
-          });
+          setCurrentBg('contact');
         },
         onLeaveBack: () => {
           setCurrentBg('testimonials');

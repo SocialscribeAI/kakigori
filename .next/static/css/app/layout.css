@@ -641,6 +641,12 @@ video {
 .h-\[700px\] {
   height: 700px;
 }
+.h-\[200px\] {
+  height: 200px;
+}
+.h-\[1200px\] {
+  height: 1200px;
+}
 .min-h-\[200vh\] {
   min-height: 200vh;
 }
@@ -649,6 +655,9 @@ video {
 }
 .min-h-screen {
   min-height: 100vh;
+}
+.min-h-\[140vh\] {
+  min-height: 140vh;
 }
 .w-2 {
   width: 0.5rem;
@@ -1005,6 +1014,12 @@ video {
 .py-24 {
   padding-top: 6rem;
   padding-bottom: 6rem;
+}
+.pb-24 {
+  padding-bottom: 6rem;
+}
+.pt-24 {
+  padding-top: 6rem;
 }
 .text-center {
   text-align: center;

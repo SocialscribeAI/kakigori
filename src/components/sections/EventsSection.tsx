@@ -7,7 +7,7 @@ export const EventsSection = () => {
   return (
     <section
       id="section-events"
-      className="relative min-h-[180vh] sm:min-h-[250vh] w-full flex items-start px-4 sm:px-6 md:px-2 py-12 sm:py-20"
+      className="relative min-h-[150vh] sm:min-h-[250vh] w-full flex items-start px-4 sm:px-6 md:px-2 py-6 sm:py-20"
     >
       <div className="max-w-7xl mx-auto w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-16 items-start">

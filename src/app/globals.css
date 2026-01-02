@@ -228,3 +228,11 @@ img {
     display: block;
   }
 }
+
+/* Mobile background fix for landscape images (testimonials & contact) */
+@media (max-width: 768px) {
+  .bg-section {
+    background-size: cover;
+    background-position: center center;
+  }
+}

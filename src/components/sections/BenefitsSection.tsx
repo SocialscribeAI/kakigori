@@ -8,7 +8,7 @@ export const BenefitsSection = () => {
   return (
     <section 
       id="section-benefits" 
-      className="relative min-h-[150vh] sm:min-h-[200vh] w-full flex items-start px-4 sm:px-6 md:px-2 py-12 sm:py-20"
+      className="relative min-h-[120vh] sm:min-h-[200vh] w-full flex items-start px-4 sm:px-6 md:px-2 py-8 sm:py-20"
     >
       <div className="max-w-7xl mx-auto w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-16 items-center">

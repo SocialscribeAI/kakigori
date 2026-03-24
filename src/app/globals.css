@@ -6,6 +6,17 @@
   --color-cream: #FFF8F0;
   --color-charcoal: #1a1a1a;
   --color-gold: #C9A959;
+  /* HERO ice override controls (only applied while you're in the hero) */
+  /* Higher % = lower on screen */
+  --hero-ice-top-mobile: 53%;
+  --hero-ice-top-sm: 60%;
+  --hero-ice-top-md: 64%;
+  --hero-ice-top-lg: 66%;
+  /* Smaller/bigger ice (only in hero) */
+  --hero-ice-size-mobile: 150px;
+  --hero-ice-size-sm: 170px;
+  --hero-ice-size-md: 230px;
+  --hero-ice-size-lg: 280px;
   /* Mobile-optimized spacing */
   --safe-area-inset-top: env(safe-area-inset-top, 0px);
   --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
@@ -22,16 +33,16 @@ html {
   scroll-behavior: smooth;
   /* Prevent horizontal scroll on mobile */
   overflow-x: hidden;
+  overflow-y: auto;
 }
 
 body {
   background-color: var(--color-cream);
   color: var(--color-charcoal);
   overflow-x: hidden;
+  overflow-y: auto;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Prevent pull-to-refresh on mobile */
-  overscroll-behavior-y: contain;
   /* Safe area padding for notched devices */
   padding-top: var(--safe-area-inset-top);
   padding-left: var(--safe-area-inset-left);
@@ -116,7 +127,7 @@ img {
     transform: translateY(0px);
   }
   50% {
-    transform: translateY(-20px);
+    transform: translateY(-8px);
   }
 }
 
@@ -125,7 +136,7 @@ img {
     transform: translateY(0px);
   }
   50% {
-    transform: translateY(-10px);
+    transform: translateY(-4px);
   }
 }
 
@@ -163,6 +174,44 @@ img {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+}
+
+/* Hero ice sizing & position (ONLY when .hero-ice-override is present) */
+
+/* Always animate width/height so the ice grows/shrinks in sync with GSAP position moves */
+.flavor-bowl-container {
+  transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1),
+              height 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hero-ice-override {
+  width: var(--hero-ice-size-mobile) !important;
+  height: var(--hero-ice-size-mobile) !important;
+  top: var(--hero-ice-top-mobile) !important;
+}
+
+@media (min-width: 640px) {
+  .hero-ice-override {
+    width: var(--hero-ice-size-sm) !important;
+    height: var(--hero-ice-size-sm) !important;
+    top: var(--hero-ice-top-sm) !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .hero-ice-override {
+    width: var(--hero-ice-size-md) !important;
+    height: var(--hero-ice-size-md) !important;
+    top: var(--hero-ice-top-md) !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-ice-override {
+    width: var(--hero-ice-size-lg) !important;
+    height: var(--hero-ice-size-lg) !important;
+    top: var(--hero-ice-top-lg) !important;
+  }
 }
 
 /* Ensure GSAP pinned sections work correctly */

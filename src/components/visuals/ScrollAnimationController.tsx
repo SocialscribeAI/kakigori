@@ -48,7 +48,7 @@ export const ScrollAnimationController = () => {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    let refreshTimeout: ReturnType<typeof window.setTimeout> | undefined;
+    let refreshTimeout: number | undefined;
 
     const restoreDocumentScroll = () => {
       document.documentElement.style.overflowY = 'auto';
